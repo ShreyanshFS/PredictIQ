@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PredictIQ — Project Explained</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  /* ── FONTS ── */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:wght@700;900&display=swap');
+
+  :root{
+    --bg:       #0d0f17;
+    --surface:  #151824;
+    --card:     #1c2030;
+    --border:   #2a2f45;
+    --accent:   #6c63ff;
+    --accent2:  #00d4aa;
+    --accent3:  #ff6b6b;
+    --accent4:  #ffd93d;
+    --text:     #e8eaf6;
+    --muted:    #8892b0;
+    --code-bg:  #0a0c14;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.7;overflow-x:hidden;}
+
+  /* ── HERO ── */
+  .hero{
+    background:linear-gradient(135deg,#0d0f17 0%,#1a1040 40%,#0d2030 100%);
+    padding:80px 40px 60px;text-align:center;
+    border-bottom:1px solid var(--border);
+    position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:'';position:absolute;top:-50%;left:-50%;
+    width:200%;height:200%;
+    background:radial-gradient(ellipse at center,rgba(108,99,255,.12) 0%,transparent 60%);
+    animation:pulse 6s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+  .hero-tag{font-family:'JetBrains Mono',monospace;font-size:.8rem;
+    color:var(--accent2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
+  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.2rem,5vw,4rem);
+    font-weight:900;background:linear-gradient(90deg,#6c63ff,#00d4aa);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;}
+  .hero-sub{font-size:1.1rem;color:var(--muted);max-width:650px;margin:0 auto 30px;}
+  .badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .badge{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);
+    color:#a5a0ff;padding:4px 14px;border-radius:999px;font-size:.8rem;
+    font-family:'JetBrains Mono',monospace;}
+
+  /* ── NAV PILLS ── */
+  .nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    padding:20px 40px;background:var(--surface);border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
+  .nav a{padding:6px 16px;border-radius:999px;font-size:.82rem;font-weight:600;
+    text-decoration:none;color:var(--muted);transition:all .2s;border:1px solid transparent;}
+  .nav a:hover{background:rgba(108,99,255,.2);color:var(--accent);border-color:rgba(108,99,255,.4);}
+
+  /* ── LAYOUT ── */
+  .container{max-width:1200px;margin:0 auto;padding:0 30px;}
+  section{padding:60px 0;}
+  section:nth-child(even){background:var(--surface);}
+
+  /* ── SECTION HEADER ── */
+  .sec-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;
+    color:var(--accent2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px;}
+  .sec-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);
+    font-weight:700;margin-bottom:10px;}
+  .sec-desc{color:var(--muted);max-width:750px;margin-bottom:40px;font-size:.97rem;}
+
+  /* ── PHASE CARDS ── */
+  .phase-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;}
+  .phase-card{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:28px;transition:transform .2s,border-color .2s;position:relative;overflow:hidden;
+  }
+  .phase-card:hover{transform:translateY(-4px);border-color:var(--accent);}
+  .phase-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .phase-card.p0::before{background:linear-gradient(90deg,#6c63ff,#a78bfa);}
+  .phase-card.p1::before{background:linear-gradient(90deg,#00d4aa,#06b6d4);}
+  .phase-card.p2::before{background:linear-gradient(90deg,#ffd93d,#fb923c);}
+  .phase-card.p3::before{background:linear-gradient(90deg,#f472b6,#ec4899);}
+  .phase-card.p4::before{background:linear-gradient(90deg,#ff6b6b,#ef4444);}
+  .phase-card.p5::before{background:linear-gradient(90deg,#34d399,#10b981);}
+  .phase-card.p6::before{background:linear-gradient(90deg,#60a5fa,#3b82f6);}
+  .phase-card.p7::before{background:linear-gradient(90deg,#c084fc,#a855f7);}
+  .phase-card.p8::before{background:linear-gradient(90deg,#fb923c,#f97316);}
+
+  .phase-num{font-family:'JetBrains Mono',monospace;font-size:.72rem;
+    color:var(--accent2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px;}
+  .phase-title{font-size:1.15rem;font-weight:700;margin-bottom:10px;}
+  .phase-desc{color:var(--muted);font-size:.88rem;margin-bottom:16px;}
+
+  /* ── VAR TABLE ── */
+  .var-table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:10px;}
+  .var-table th{background:rgba(108,99,255,.1);color:var(--accent);
+    padding:8px 12px;text-align:left;font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;letter-spacing:.05em;border-bottom:1px solid var(--border);}
+  .var-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;}
+  .var-table tr:hover td{background:rgba(108,99,255,.05);}
+  .var-name{font-family:'JetBrains Mono',monospace;color:#a5a0ff;white-space:nowrap;}
+  .var-type{font-family:'JetBrains Mono',monospace;color:var(--accent2);font-size:.75rem;}
+  .var-val{font-family:'JetBrains Mono',monospace;color:var(--accent4);font-size:.75rem;}
+
+  /* ── CODE BLOCK ── */
+  .code-block{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;
+    padding:20px;font-family:'JetBrains Mono',monospace;font-size:.8rem;
+    line-height:1.8;overflow-x:auto;margin:12px 0;}
+  .kw{color:#c084fc;}
+  .fn{color:#60a5fa;}
+  .str{color:#86efac;}
+  .num{color:#fbbf24;}
+  .cm{color:#4b5563;}
+  .var{color:#f9a8d4;}
+
+  /* ── ALERT BOXES ── */
+  .alert{border-radius:10px;padding:14px 18px;margin:16px 0;font-size:.88rem;display:flex;gap:12px;align-items:flex-start;}
+  .alert-info{background:rgba(59,130,246,.1);border-left:3px solid #3b82f6;}
+  .alert-warn{background:rgba(245,158,11,.1);border-left:3px solid #f59e0b;}
+  .alert-success{background:rgba(16,185,129,.1);border-left:3px solid #10b981;}
+  .alert-danger{background:rgba(239,68,68,.1);border-left:3px solid #ef4444;}
+  .alert-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+  .alert-text b{color:var(--text);}
+  .alert-text{color:var(--muted);}
+
+  /* ── CHART CONTAINERS ── */
+  .chart-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:28px;margin-top:30px;}
+  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;}
+  .chart-title{font-weight:600;margin-bottom:4px;font-size:.95rem;}
+  .chart-sub{color:var(--muted);font-size:.78rem;margin-bottom:16px;}
+  canvas{max-height:260px;}
+
+  /* ── FLOW DIAGRAM ── */
+  .mermaid{background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:30px;margin:20px 0;overflow-x:auto;}
+
+  /* ── VARIABLE SPOTLIGHT ── */
+  .var-spotlight{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:20px 0;
+  }
+  .var-card{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:18px;transition:border-color .2s;
+  }
+  .var-card:hover{border-color:var(--accent);}
+  .var-card-name{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:#a5a0ff;font-weight:700;}
+  .var-card-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;color:var(--accent4);font-weight:700;margin:4px 0;}
+  .var-card-desc{font-size:.78rem;color:var(--muted);}
+
+  /* ── COLUMNS COL ── */
+  .col-table-wrap{overflow-x:auto;}
+  .col-pill{display:inline-block;padding:2px 9px;border-radius:5px;font-size:.73rem;
+    font-family:'JetBrains Mono',monospace;font-weight:600;margin:2px;}
+  .pill-feat{background:rgba(108,99,255,.15);color:#a5a0ff;}
+  .pill-tgt{background:rgba(255,107,107,.15);color:#fca5a5;}
+  .pill-id{background:rgba(0,212,170,.1);color:#6ee7b7;}
+  .pill-hidden{background:rgba(255,217,61,.1);color:#fde68a;}
+
+  /* ── TIMELINE ── */
+  .timeline{position:relative;padding-left:40px;}
+  .timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--accent2));}
+  .tl-item{position:relative;margin-bottom:32px;}
+  .tl-dot{position:absolute;left:-34px;top:4px;width:16px;height:16px;
+    border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 10px rgba(108,99,255,.6);}
+  .tl-title{font-weight:700;font-size:1rem;margin-bottom:4px;}
+  .tl-body{color:var(--muted);font-size:.88rem;}
+
+  /* ── STAT BOXES ── */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin:24px 0;}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:20px;text-align:center;}
+  .stat-val{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .stat-lbl{color:var(--muted);font-size:.78rem;margin-top:4px;}
+
+  /* ── COMPARISON TABLE ── */
+  .cmp-table{width:100%;border-collapse:collapse;margin:20px 0;}
+  .cmp-table th{background:rgba(108,99,255,.15);color:var(--accent);padding:10px 16px;
+    text-align:left;font-size:.82rem;letter-spacing:.05em;}
+  .cmp-table td{padding:10px 16px;border-bottom:1px solid var(--border);font-size:.88rem;}
+  .cmp-table tr:hover td{background:rgba(108,99,255,.05);}
+  .green{color:#34d399;font-weight:600;}
+  .red{color:#f87171;font-weight:600;}
+  .yellow{color:#fbbf24;font-weight:600;}
+
+  /* ── FOOTER ── */
+  footer{text-align:center;padding:40px;color:var(--muted);font-size:.82rem;
+    border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<script>mermaid.initialize({theme:'dark',startOnLoad:true,themeVariables:{primaryColor:'#6c63ff',lineColor:'#6c63ff',textColor:'#e8eaf6',mainBkg:'#1c2030',nodeBorder:'#2a2f45'}});</script>
+
+<!-- ══════════════════════════════ HERO ══════════════════════════════ -->
+<div class="hero">
+  <div class="hero-tag">🏭 Machine Learning · Predictive Maintenance</div>
+  <h1>PredictIQ — Full Project Breakdown</h1>
+  <p class="hero-sub">A complete visual walkthrough of every variable, phase, and decision in <code style="color:var(--accent2)">main.py</code> + <code style="color:var(--accent4)">factory_sim.csv</code></p>
+  <div class="badges">
+    <span class="badge">Python</span>
+    <span class="badge">XGBoost</span>
+    <span class="badge">Random Forest</span>
+    <span class="badge">SMOTE</span>
+    <span class="badge">SHAP</span>
+    <span class="badge">345,600 rows</span>
+    <span class="badge">20 Machines</span>
+    <span class="badge">15 Phases</span>
+  </div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="nav">
+  <a href="#question">❓ The Question</a>
+  <a href="#data">📊 Dataset</a>
+  <a href="#pipeline">🔁 Pipeline</a>
+  <a href="#phases">🔬 All Phases</a>
+  <a href="#models">🤖 Models</a>
+  <a href="#results">📈 Results</a>
+  <a href="#predict">🚀 Live Predict</a>
+</nav>
+
+<!-- ══════════════════════════════ SECTION 1 — THE QUESTION ══════════════════════════════ -->
+<section id="question">
+<div class="container">
+  <div class="sec-label">Problem Statement</div>
+  <div class="sec-title">What is this project trying to do?</div>
+  <p class="sec-desc">PredictIQ answers one critical factory question using machine sensor data and machine learning.</p>
+
+  <div style="background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(0,212,170,.1));border:1px solid rgba(108,99,255,.4);border-radius:16px;padding:40px;text-align:center;margin:20px 0;">
+    <div style="font-size:1.1rem;color:var(--muted);margin-bottom:12px;font-family:'JetBrains Mono',monospace;">THE CORE QUESTION</div>
+    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;color:#fff;line-height:1.4;">
+      "Will this machine experience a failure<br>within the <span style="color:var(--accent2)">next N hours</span>?"
+    </div>
+    <div style="margin-top:20px;font-size:.9rem;color:var(--muted);">→ Answer: <strong style="color:#ffd93d">YES (1) = Failure coming</strong> &nbsp;|&nbsp; <strong style="color:#34d399">NO (0) = Machine is fine</strong></div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-val">345,600</div><div class="stat-lbl">Total sensor readings</div></div>
+    <div class="stat-box"><div class="stat-val">20</div><div class="stat-lbl">Factory machines</div></div>
+    <div class="stat-box"><div class="stat-val">48h</div><div class="stat-lbl">Data per machine (simulated)</div></div>
+    <div class="stat-box"><div class="stat-val">10s</div><div class="stat-lbl">Reading interval</div></div>
+    <div class="stat-box"><div class="stat-val">88</div><div class="stat-lbl">Total failure events</div></div>
+    <div class="stat-box"><div class="stat-val">15</div><div class="stat-lbl">Pipeline phases</div></div>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">💡</span>
+    <div class="alert-text"><b>Why is this useful?</b> If a factory machine fails unexpectedly, it can cost millions in downtime. If we can predict failure <em>before</em> it happens, we schedule maintenance only when needed — saving money and avoiding disasters.</div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ SECTION 2 — DATASET ══════════════════════════════ -->
+<section id="data" style="background:var(--surface);">
+<div class="container">
+  <div class="sec-label">factory_sim.csv</div>
+  <div class="sec-title">Understanding the Dataset</div>
+  <p class="sec-desc">The CSV was generated by <code>data_genrator.py</code>. Each row = one sensor reading from one machine every 10 seconds.</p>
+
+  <div class="stat-grid">
+    <div class="stat-box"><div class="stat-val">345K</div><div class="stat-lbl">Rows (17280 × 20 machines)</div></div>
+    <div class="stat-box"><div class="stat-val">12</div><div class="stat-lbl">Columns total</div></div>
+    <div class="stat-box"><div class="stat-val">0</div><div class="stat-lbl">Missing values</div></div>
+    <div class="stat-box"><div class="stat-val">~0.025%</div><div class="stat-lbl">Failure rows (very imbalanced!)</div></div>
+  </div>
+
+  <!-- Column descriptions -->
+  <h3 style="margin:30px 0 12px;font-size:1.1rem;">📋 All 12 Columns Explained</h3>
+  <div class="col-table-wrap">
+    <table class="var-table">
+      <thead><tr><th>Column</th><th>Type</th><th>Sample Value</th><th>Role</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td><span class="col-pill pill-id">machineID</span></td><td class="var-type">int64</td><td class="var-val">1–20</td><td><span class="col-pill pill-id">ID</span></td><td>Which machine (1–20). Used to group data per machine.</td></tr>
+        <tr><td><span class="col-pill pill-id">t_sec</span></td><td class="var-type">int64</td><td class="var-val">0, 10, 20 …</td><td><span class="col-pill pill-id">ID</span></td><td>Timestamp in seconds. 0 = machine start. Step = 10s.</td></tr>
+        <tr><td><span class="col-pill pill-feat">temp</span></td><td class="var-type">float64</td><td class="var-val">60–102°C</td><td><span class="col-pill pill-feat">Feature</span></td><td>Machine temperature. Rises as health degrades.</td></tr>
+        <tr><td><span class="col-pill pill-feat">vib</span></td><td class="var-type">float64</td><td class="var-val">1.72–8.42</td><td><span class="col-pill pill-feat">Feature</span></td><td>Vibration level. Increases sharply near failure.</td></tr>
+        <tr><td><span class="col-pill pill-feat">pressure</span></td><td class="var-type">float64</td><td class="var-val">67–116 bar</td><td><span class="col-pill pill-feat">Feature</span></td><td>Pressure reading. Drops as machine wears out.</td></tr>
+        <tr><td><span class="col-pill pill-feat">rotation</span></td><td class="var-type">float64</td><td class="var-val">1025–1517 RPM</td><td><span class="col-pill pill-feat">Feature</span></td><td>Shaft rotation speed. Slows down near failure.</td></tr>
+        <tr><td><span class="col-pill pill-feat">power</span></td><td class="var-type">float64</td><td class="var-val">6.1–19.7 kW</td><td><span class="col-pill pill-feat">Feature</span></td><td>Power draw. Goes up as machine works harder.</td></tr>
+        <tr><td><span class="col-pill pill-feat">op_hours</span></td><td class="var-type">float64</td><td class="var-val">0–48 h</td><td><span class="col-pill pill-feat">Feature</span></td><td>Cumulative operating hours of the machine.</td></tr>
+        <tr><td><span class="col-pill pill-feat">n_maint</span></td><td class="var-type">int64</td><td class="var-val">0–6</td><td><span class="col-pill pill-feat">Feature</span></td><td>How many maintenance events have happened so far.</td></tr>
+        <tr><td><span class="col-pill pill-feat">hours_since_maint</span></td><td class="var-type">float64</td><td class="var-val">0–13.9 h</td><td><span class="col-pill pill-feat">Feature</span></td><td>Hours since last maintenance — longer = more wear.</td></tr>
+        <tr><td><span class="col-pill pill-hidden">_health_hidden</span></td><td class="var-type">float64</td><td class="var-val">0.0–1.0</td><td><span class="col-pill pill-hidden">Hidden</span></td><td>Internal degradation score. 1.0=new, 0.0=failed. <strong>NOT a feature</strong>, dropped immediately.</td></tr>
+        <tr><td><span class="col-pill pill-tgt">fail_event</span></td><td class="var-type">bool</td><td class="var-val">True/False</td><td><span class="col-pill pill-tgt">Source</span></td><td>Did the machine fail at this exact moment? Used to compute TTF target.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Charts row -->
+  <div class="chart-grid" style="margin-top:40px;">
+    <div class="chart-card">
+      <div class="chart-title">Sensor Value Ranges</div>
+      <div class="chart-sub">Min / Mean / Max across all 345,600 readings</div>
+      <canvas id="sensorRangeChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Failures per Machine</div>
+      <div class="chart-sub">Total failure events (out of 88 total)</div>
+      <canvas id="failuresChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Class Imbalance Problem</div>
+      <div class="chart-sub">Failure rows vs Normal rows — huge imbalance!</div>
+      <canvas id="imbalanceChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">How Health Degrades Over Time</div>
+      <div class="chart-sub">_health_hidden: 1.0 = new → 0.0 = failed → reset after maintenance</div>
+      <canvas id="healthChart"></canvas>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-text"><b>Key insight about the data:</b> <code>_health_hidden</code> is a hidden simulation variable — in real factories you'd <em>never</em> have this. The model must learn to predict failure from the <em>observable</em> sensors (temp, vib, pressure, rotation, power) without seeing health directly.</div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ SECTION 3 — PIPELINE FLOW ══════════════════════════════ -->
+<section id="pipeline">
+<div class="container">
+  <div class="sec-label">Architecture</div>
+  <div class="sec-title">Full Pipeline Flowchart</div>
+  <p class="sec-desc">From raw CSV → feature engineering → models → live prediction in 15 phases split across Phase A (classification) and Phase B (regression + uncertainty).</p>
+
+  <div class="mermaid">
+flowchart TD
+    A["📁 factory_sim.csv\n345,600 rows × 12 cols"] --> B
+
+    subgraph PHASE_A ["━━━ PHASE A — CLASSIFICATION ━━━"]
+        B["Phase 0: Config\nSeed=42, N_hrs=1, wndw=30"] --> C
+        C["Phase 1: Load & Label\nread_csv → ttf_sec → fail_within_N"] --> D
+        D["Phase 2: Feature Engineering\n+3 derived features\npower_per_rpm, temp_x_vib, maint_load"] --> E
+        E["Phase 3: Split by Machine\nGroupShuffleSplit 75/25\nNO data leakage!"] --> F
+        F["Phase 4: Logistic Regression\nBaseline — StandardScaler + LR"] --> G
+        G["Phase 5: XGBoost Classifier\nscale_pos_weight for imbalance"] --> H
+        H["Phase 6: Imbalance Handling\nRF plain → RF balanced → RF+SMOTE"] --> I
+        I["Phase 7: Evaluate + Threshold\nConfusion Matrix, PR Curve, Cost sweep"] --> J
+        J["Phase 8: SHAP\nGlobal + summary feature importance"]
+    end
+
+    subgraph PHASE_B ["━━━ PHASE B — REGRESSION + UNCERTAINTY ━━━"]
+        J --> K
+        K["Phase 9: Rolling Features\nrmean, rstd, trend per machine"] --> L
+        L["Phase 10: Ridge Baseline (Regression)\nPredict TTF in seconds"] --> M
+        M["Phase 11: XGBoost Regressor\nBetter TTF + classifier with rolling feats"] --> N
+        N["Phase 12: Results Table\nRidge vs XGBoost RMSE/MAE"] --> O
+        O["Phase 13: Quantile Regression\nUncertainty bounds 10%–90%\nAlert system"] --> P
+        P["Phase 14: SHAP on Regressor"] --> Q
+        Q["Phase 15: predict() wrapper\nFails? Probability? Time left? Range?"]
+    end
+
+    Q --> R["🚀 LIVE OUTPUT\nfails_within_N, Probability, time_left, Range"]
+
+    style A fill:#1c2030,stroke:#6c63ff,color:#e8eaf6
+    style R fill:#1c2030,stroke:#00d4aa,color:#e8eaf6
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ SECTION 4 — ALL PHASES ══════════════════════════════ -->
+<section id="phases" style="background:var(--surface);">
+<div class="container">
+  <div class="sec-label">Deep Dive</div>
+  <div class="sec-title">Every Phase — Every Variable</div>
+  <p class="sec-desc">Click through each phase card to see exactly what code runs, which variables are created, and why each decision was made.</p>
+
+  <div class="phase-grid">
+
+    <!-- Phase 0 -->
+    <div class="phase-card p0">
+      <div class="phase-num">⚙️ Phase 0</div>
+      <div class="phase-title">Config — Global Constants</div>
+      <div class="phase-desc">Sets all the knobs that control the entire experiment. Change these to change behaviour.</div>
+      <div class="code-block">
+<span class="cm"># main.py lines 21-28</span>
+<span class="var">Seed</span>      = <span class="num">42</span>         <span class="cm"># reproducibility</span>
+<span class="var">Step_sec</span>  = <span class="num">10</span>         <span class="cm"># seconds between readings</span>
+<span class="var">N_hrs</span>     = <span class="num">1</span>          <span class="cm"># predict failure within 1 hour</span>
+<span class="var">wndw</span>      = <span class="num">30</span>         <span class="cm"># rolling window (30 readings = 5 min)</span>
+<span class="var">cost_fn</span>   = <span class="num">10</span>         <span class="cm"># miss a failure = 10× expensive</span>
+<span class="var">cost_fp</span>   = <span class="num">1</span>          <span class="cm"># false alarm = 1× cost</span>
+<span class="var">dp</span>        = <span class="str">"Data/factory_sim.csv"</span>
+      </div>
+      <table class="var-table">
+        <tr><th>Variable</th><th>Value</th><th>Impact</th></tr>
+        <tr><td class="var-name">Seed</td><td class="var-val">42</td><td style="font-size:.8rem;color:var(--muted)">Makes results reproducible</td></tr>
+        <tr><td class="var-name">N_hrs</td><td class="var-val">1</td><td style="font-size:.8rem;color:var(--muted)">Predict failure within 1 hr</td></tr>
+        <tr><td class="var-name">wndw</td><td class="var-val">30</td><td style="font-size:.8rem;color:var(--muted)">30 readings × 10s = 5-min trend</td></tr>
+        <tr><td class="var-name">cost_fn</td><td class="var-val">10</td><td style="font-size:.8rem;color:var(--muted)">Missing failure = 10× penalty</td></tr>
+        <tr><td class="var-name">cost_fp</td><td class="var-val">1</td><td style="font-size:.8rem;color:var(--muted)">False alarm = 1× penalty</td></tr>
+      </table>
+    </div>
+
+    <!-- Phase 1 -->
+    <div class="phase-card p1">
+      <div class="phase-num">📥 Phase 1</div>
+      <div class="phase-title">Data Load + Label Creation</div>
+      <div class="phase-desc">Read CSV, drop the hidden column, and compute the target variable: "will it fail within N hours?"</div>
+      <div class="code-block">
+<span class="var">rw</span> = pd.<span class="fn">read_csv</span>(<span class="var">dp</span>)
+<span class="cm"># ── Drop hidden health score ──────────</span>
+<span class="var">rw</span>.<span class="fn">drop</span>(columns=[<span class="str">"_health_hidden"</span>])
+
+<span class="cm"># ── Compute TTF (Time To Failure) ─────</span>
+<span class="var">fail_t</span>       = rw[<span class="str">"t_sec"</span>].<span class="fn">where</span>(rw[<span class="str">"fail_event"</span>])
+<span class="var">rw["next_fail_t"]</span> = fail_t.<span class="fn">groupby</span>(rw[<span class="str">"machineID"</span>]).<span class="fn">bfill</span>()
+<span class="var">rw["ttf_sec"]</span>     = rw[<span class="str">"next_fail_t"</span>] - rw[<span class="str">"t_sec"</span>]
+
+<span class="cm"># ── Create binary target ──────────────</span>
+<span class="var">rw["fail_within_N"]</span> = (rw[<span class="str">"ttf_sec"</span>] &lt;= N_hrs*<span class="num">3600</span>).<span class="fn">astype</span>(<span class="kw">int</span>)
+      </div>
+      <div class="alert alert-info" style="margin-top:10px;">
+        <span class="alert-icon">🔑</span>
+        <div class="alert-text"><b>KEY TRICK — bfill():</b> For each row, look <em>forward</em> in time to find the next failure timestamp. Subtract current time → get "seconds until next failure" (TTF). If TTF ≤ 3600s (1 hour) → label = 1.</div>
+      </div>
+      <table class="var-table" style="margin-top:10px;">
+        <tr><th>Variable</th><th>Type</th><th>Meaning</th></tr>
+        <tr><td class="var-name">rw</td><td class="var-type">DataFrame</td><td style="font-size:.8rem;color:var(--muted)">Raw data (345,600 rows)</td></tr>
+        <tr><td class="var-name">fail_t</td><td class="var-type">Series</td><td style="font-size:.8rem;color:var(--muted)">t_sec only at failure rows, NaN otherwise</td></tr>
+        <tr><td class="var-name">next_fail_t</td><td class="var-type">Series</td><td style="font-size:.8rem;color:var(--muted)">Next upcoming failure timestamp (bfill)</td></tr>
+        <tr><td class="var-name">ttf_sec</td><td class="var-type">Series</td><td style="font-size:.8rem;color:var(--muted)">Seconds until next failure (regression target)</td></tr>
+        <tr><td class="var-name">fail_within_N</td><td class="var-type">0 or 1</td><td style="font-size:.8rem;color:var(--muted)">Classification target: fail within 1h?</td></tr>
+      </table>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase-card p2">
+      <div class="phase-num">🔧 Phase 2</div>
+      <div class="phase-title">Feature Engineering (Part A)</div>
+      <div class="phase-desc">Drop ID columns, create 3 domain-derived features from raw sensors to help the model.</div>
+      <div class="code-block">
+<span class="var">dc</span> = [<span class="str">"machineID"</span>,<span class="str">"t_sec"</span>,<span class="str">"fail_event"</span>,
+       <span class="str">"next_fail_t"</span>,<span class="str">"ttf_sec"</span>,<span class="str">"fail_within_N"</span>]
+<span class="var">x</span> = rw.<span class="fn">drop</span>(columns=<span class="var">dc</span>)
+
+<span class="cm"># ── 3 Derived Features ───────────────</span>
+<span class="var">x["power_per_rpm"]</span>  = x[<span class="str">"power"</span>]  / x[<span class="str">"rotation"</span>]
+<span class="var">x["temp_x_vib"]</span>     = x[<span class="str">"temp"</span>]   * x[<span class="str">"vib"</span>]
+<span class="var">x["maint_load"]</span>     = x[<span class="str">"hours_since_maint"</span>] * x[<span class="str">"power"</span>]
+
+<span class="var">y_target</span> = rw[<span class="str">"fail_within_N"</span>]   <span class="cm"># classification</span>
+<span class="var">y_ttf</span>    = rw[<span class="str">"ttf_sec"</span>]          <span class="cm"># regression</span>
+<span class="var">grp</span>      = rw[<span class="str">"machineID"</span>]         <span class="cm"># for splitting</span>
+      </div>
+      <div class="var-spotlight">
+        <div class="var-card">
+          <div class="var-card-name">power_per_rpm</div>
+          <div class="var-card-val">power ÷ rotation</div>
+          <div class="var-card-desc">Power efficiency per revolution. Rises when machine works harder for same speed (wear signal).</div>
+        </div>
+        <div class="var-card">
+          <div class="var-card-name">temp_x_vib</div>
+          <div class="var-card-val">temp × vib</div>
+          <div class="var-card-desc">Thermal stress index. Both go up near failure, so product amplifies the failure signal.</div>
+        </div>
+        <div class="var-card">
+          <div class="var-card-name">maint_load</div>
+          <div class="var-card-val">hours_since_maint × power</div>
+          <div class="var-card-desc">How hard machine worked since last service. High = more wear accumulated.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase-card p3">
+      <div class="phase-num">✂️ Phase 3</div>
+      <div class="phase-title">Train/Test Split by Machine</div>
+      <div class="phase-desc">Split data so that <strong>entire machines</strong> go to either train OR test — never both. This prevents data leakage.</div>
+      <div class="code-block">
+<span class="var">gss</span> = GroupShuffleSplit(
+    n_splits=<span class="num">1</span>, test_size=<span class="num">.25</span>, random_state=<span class="var">Seed</span>
+)
+<span class="var">tr_idx</span>, <span class="var">te_idx</span> = <span class="fn">next</span>(gss.<span class="fn">split</span>(x, y_target, <span class="var">grp</span>))
+
+<span class="var">x_train</span>    = x.<span class="fn">iloc</span>[tr_idx]    <span class="cm"># 75% machines</span>
+<span class="var">x_test</span>     = x.<span class="fn">iloc</span>[te_idx]    <span class="cm"># 25% machines</span>
+<span class="var">y_train</span>    = y_target.<span class="fn">iloc</span>[tr_idx]
+<span class="var">y_test</span>     = y_target.<span class="fn">iloc</span>[te_idx]
+<span class="var">ttf_train</span>  = y_ttf.<span class="fn">iloc</span>[tr_idx]
+<span class="var">ttf_test</span>   = y_ttf.<span class="fn">iloc</span>[te_idx]
+      </div>
+      <div class="alert alert-danger" style="margin-top:10px;">
+        <span class="alert-icon">🚫</span>
+        <div class="alert-text"><b>Why NOT random split?</b> A random 75/25 would put rows from the SAME machine in both train and test. The model would memorise that machine's patterns → fake high accuracy → fail in real world. <code>GroupShuffleSplit</code> fixes this.</div>
+      </div>
+      <table class="var-table" style="margin-top:10px;">
+        <tr><th>Variable</th><th>Meaning</th></tr>
+        <tr><td class="var-name">gss</td><td style="font-size:.8rem;color:var(--muted)">Splitter that keeps groups (machines) intact</td></tr>
+        <tr><td class="var-name">tr_idx / te_idx</td><td style="font-size:.8rem;color:var(--muted)">Row indices for train (15 machines) / test (5 machines)</td></tr>
+        <tr><td class="var-name">x_train / x_test</td><td style="font-size:.8rem;color:var(--muted)">Feature matrices for training / testing</td></tr>
+        <tr><td class="var-name">ttf_train / ttf_test</td><td style="font-size:.8rem;color:var(--muted)">Regression target (seconds to failure)</td></tr>
+      </table>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase-card p4">
+      <div class="phase-num">📏 Phase 4</div>
+      <div class="phase-title">Baseline — Logistic Regression</div>
+      <div class="phase-desc">Simple first model to establish a baseline score before using heavy-duty models.</div>
+      <div class="code-block">
+<span class="cm"># Standardise so all features are on same scale</span>
+<span class="var">ss</span>          = StandardScaler()
+<span class="var">x_train_sd</span>  = ss.<span class="fn">fit_transform</span>(x_train)
+<span class="var">x_test_sd</span>   = ss.<span class="fn">transform</span>(x_test)
+
+<span class="cm"># Baseline classifier</span>
+<span class="var">lgr</span> = LogisticRegression(
+    class_weight=<span class="str">"balanced"</span>,  <span class="cm"># handles imbalance</span>
+    max_iter=<span class="num">1000</span>,
+    random_state=<span class="var">Seed</span>
+)
+<span class="var">lgr</span>.<span class="fn">fit</span>(x_train_sd, y_train)
+<span class="var">pred</span> = lgr.<span class="fn">predict</span>(x_test_sd)
+<span class="var">prob</span> = lgr.<span class="fn">predict_proba</span>(x_test_sd)[:, <span class="num">1</span>]
+      </div>
+      <div class="alert alert-success" style="margin-top:10px;">
+        <span class="alert-icon">✅</span>
+        <div class="alert-text"><b>Why <code>class_weight="balanced"</code>?</b> Only ~0.025% rows are failures. Without balancing, the model just predicts "Normal" for everything and gets 99.97% accuracy — useless! Balanced weights make the model pay more attention to rare failure rows.</div>
+      </div>
+    </div>
+
+    <!-- Phase 5 -->
+    <div class="phase-card p5">
+      <div class="phase-num">🚀 Phase 5</div>
+      <div class="phase-title">XGBoost Classifier</div>
+      <div class="phase-desc">Gradient boosting — much more powerful than logistic regression. Handles non-linear patterns and interactions.</div>
+      <div class="code-block">
+<span class="cm"># Weight for imbalance: majority/minority ratio</span>
+<span class="var">spos_wt</span> = (y_train==<span class="num">0</span>).<span class="fn">sum</span>() / (y_train==<span class="num">1</span>).<span class="fn">sum</span>()
+
+<span class="var">xgb</span> = XGBClassifier(
+    n_estimators     = <span class="num">300</span>,     <span class="cm"># 300 trees</span>
+    max_depth        = <span class="num">4</span>,       <span class="cm"># tree depth</span>
+    learning_rate    = <span class="num">0.05</span>,    <span class="cm"># step size</span>
+    scale_pos_weight = <span class="var">spos_wt</span>, <span class="cm"># imbalance weight</span>
+    eval_metric      = <span class="str">"aucpr"</span>  <span class="cm"># area under PR curve</span>
+)
+<span class="var">xgb</span>.<span class="fn">fit</span>(x_train, y_train)
+<span class="var">xgb_ypred</span> = xgb.<span class="fn">predict</span>(x_test)
+<span class="var">xgb_yprob</span> = xgb.<span class="fn">predict_proba</span>(x_test)[:, <span class="num">1</span>]
+      </div>
+      <table class="var-table" style="margin-top:10px;">
+        <tr><th>Param</th><th>Value</th><th>Why</th></tr>
+        <tr><td class="var-name">n_estimators</td><td class="var-val">300</td><td style="font-size:.8rem;color:var(--muted)">300 trees → better accuracy</td></tr>
+        <tr><td class="var-name">max_depth</td><td class="var-val">4</td><td style="font-size:.8rem;color:var(--muted)">Shallow trees → less overfitting</td></tr>
+        <tr><td class="var-name">learning_rate</td><td class="var-val">0.05</td><td style="font-size:.8rem;color:var(--muted)">Small steps → more careful learning</td></tr>
+        <tr><td class="var-name">scale_pos_weight</td><td class="var-val">~40×</td><td style="font-size:.8rem;color:var(--muted)">Normal:Failure ratio, tells XGB to care more about failures</td></tr>
+        <tr><td class="var-name">eval_metric</td><td class="var-val">aucpr</td><td style="font-size:.8rem;color:var(--muted)">Area under Precision-Recall Curve — best metric for imbalanced data</td></tr>
+      </table>
+    </div>
+
+    <!-- Phase 6 -->
+    <div class="phase-card p6">
+      <div class="phase-num">⚖️ Phase 6</div>
+      <div class="phase-title">Imbalance Handling — 3 Strategies</div>
+      <div class="phase-desc">Compares three ways to handle the class imbalance problem using Random Forest.</div>
+      <div class="code-block">
+<span class="cm"># Strategy 1: No handling (baseline)</span>
+<span class="var">rf</span>        = RandomForestClassifier(**rf_kw).<span class="fn">fit</span>(x_train,y_train)
+
+<span class="cm"># Strategy 2: class_weight="balanced"</span>
+<span class="var">rfw</span>       = RandomForestClassifier(
+    class_weight=<span class="str">"balanced"</span>, **rf_kw).<span class="fn">fit</span>(x_train,y_train)
+
+<span class="cm"># Strategy 3: SMOTE (synthetic oversampling)</span>
+<span class="var">smote</span>      = SMOTE(random_state=<span class="var">Seed</span>)
+<span class="var">smx_train</span>, <span class="var">smy_train</span> = smote.<span class="fn">fit_resample</span>(x_train,y_train)
+<span class="var">rf_smote</span>   = RandomForestClassifier(**rf_kw).<span class="fn">fit</span>(smx_train,smy_train)
+      </div>
+      <div style="margin-top:12px;">
+        <table class="cmp-table">
+          <tr><th>Strategy</th><th>How it works</th><th>Tradeoff</th></tr>
+          <tr><td><span class="red">No handling</span></td><td>Trains on raw imbalanced data</td><td>Misses most failures</td></tr>
+          <tr><td><span class="yellow">class_weight</span></td><td>Penalises misclassified failures more</td><td>Good, easy to implement</td></tr>
+          <tr><td><span class="green">SMOTE</span></td><td>Creates synthetic failure rows by interpolation</td><td>Best recall, slight FP increase</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Phase 7 -->
+    <div class="phase-card p7">
+      <div class="phase-num">📊 Phase 7</div>
+      <div class="phase-title">Evaluation + Cost-based Threshold</div>
+      <div class="phase-desc">Default threshold is 0.5 but that's not optimal here. We sweep thresholds to minimise the total business cost.</div>
+      <div class="code-block">
+<span class="cm"># Sweep thresholds from 0.05 to 0.95</span>
+<span class="var">bth</span>, <span class="var">bc</span> = <span class="num">0.5</span>, np.inf
+<span class="kw">for</span> t <span class="kw">in</span> np.<span class="fn">arange</span>(<span class="num">0.05</span>, <span class="num">0.95</span>, <span class="num">0.01</span>):
+    <span class="var">pat</span> = (xgb_yprob &gt;= t).<span class="fn">astype</span>(<span class="kw">int</span>)
+    <span class="var">fn</span>  = ((pat==<span class="num">0</span>) &amp; (y_test==<span class="num">1</span>)).<span class="fn">sum</span>()   <span class="cm"># missed failures</span>
+    <span class="var">fp</span>  = ((pat==<span class="num">1</span>) &amp; (y_test==<span class="num">0</span>)).<span class="fn">sum</span>()   <span class="cm"># false alarms</span>
+    <span class="var">c</span>   = fn*<span class="var">cost_fn</span> + fp*<span class="var">cost_fp</span>          <span class="cm"># total cost</span>
+    <span class="kw">if</span> c &lt; bc: bc, bth = c, t
+      </div>
+      <div class="alert alert-warn" style="margin-top:10px;">
+        <span class="alert-icon">💰</span>
+        <div class="alert-text"><b>Business logic:</b> Missing a real failure (FN) costs 10× more than a false alarm (FP). So we lower the threshold below 0.5 — this catches more real failures at the cost of more false alarms. That's the right trade-off here.</div>
+      </div>
+      <table class="var-table" style="margin-top:10px;">
+        <tr><th>Variable</th><th>Meaning</th></tr>
+        <tr><td class="var-name">bth</td><td style="font-size:.8rem;color:var(--muted)">Best threshold (optimal cost)</td></tr>
+        <tr><td class="var-name">bc</td><td style="font-size:.8rem;color:var(--muted)">Best (lowest) total cost</td></tr>
+        <tr><td class="var-name">fn</td><td style="font-size:.8rem;color:var(--muted)">False Negatives — missed failures (expensive!)</td></tr>
+        <tr><td class="var-name">fp</td><td style="font-size:.8rem;color:var(--muted)">False Positives — false alarms (cheap)</td></tr>
+      </table>
+    </div>
+
+    <!-- Phase 8 -->
+    <div class="phase-card p8">
+      <div class="phase-num">🔍 Phase 8</div>
+      <div class="phase-title">SHAP — Model Interpretability</div>
+      <div class="phase-desc">SHAP answers: "WHY did the model say this machine will fail?" — shows which features matter most.</div>
+      <div class="code-block">
+<span class="var">ex</span> = shap.<span class="fn">TreeExplainer</span>(xgb)
+<span class="var">sv</span> = ex.<span class="fn">shap_values</span>(x_test)
+
+<span class="cm"># Global importance — bar chart</span>
+shap.<span class="fn">summary_plot</span>(sv, x_test, plot_type=<span class="str">"bar"</span>)
+
+<span class="cm"># Beeswarm — direction + magnitude</span>
+shap.<span class="fn">summary_plot</span>(sv, x_test)
+      </div>
+      <div class="var-spotlight">
+        <div class="var-card">
+          <div class="var-card-name">ex</div>
+          <div class="var-card-val">TreeExplainer</div>
+          <div class="var-card-desc">SHAP explainer built specifically for tree-based models like XGBoost — very fast.</div>
+        </div>
+        <div class="var-card">
+          <div class="var-card-name">sv</div>
+          <div class="var-card-val">SHAP values array</div>
+          <div class="var-card-desc">One SHAP value per feature per prediction. Positive = pushed toward failure, negative = away.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /phase-grid -->
+
+  <!-- PHASE B HEADING -->
+  <div style="margin:50px 0 24px;padding:24px;background:linear-gradient(90deg,rgba(0,212,170,.1),rgba(108,99,255,.1));border:1px solid rgba(0,212,170,.3);border-radius:16px;">
+    <div style="font-family:'JetBrains Mono',monospace;color:var(--accent2);font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;">Phase B — Advanced Features (Phases 9–15)</div>
+    <div style="font-size:1.1rem;font-weight:600;">Rolling Features + Regression + Uncertainty Bounds</div>
+    <p style="color:var(--muted);font-size:.88rem;margin-top:6px;">Phase B adds time-series trends, predicts exact time-to-failure (not just binary yes/no), and gives a confidence interval around each prediction.</p>
+  </div>
+
+  <div class="phase-grid">
+
+    <!-- Phase 9 -->
+    <div class="phase-card p1">
+      <div class="phase-num">📈 Phase 9</div>
+      <div class="phase-title">Rolling Time-Series Features</div>
+      <div class="phase-desc">Raw sensor values miss trends. A rising temperature over 5 minutes is more alarming than a single high reading.</div>
+      <div class="code-block">
+<span class="var">rc</span> = [<span class="str">"temp"</span>,<span class="str">"vib"</span>,<span class="str">"pressure"</span>,<span class="str">"rotation"</span>,<span class="str">"power"</span>]
+<span class="kw">for</span> c <span class="kw">in</span> rc:
+    g = rw.<span class="fn">groupby</span>(<span class="str">"machineID"</span>)[c]
+
+    <span class="cm"># Rolling mean (smooth average)</span>
+    x[f<span class="str">"{c}_rmean"</span>] = g.<span class="fn">transform</span>(
+        <span class="kw">lambda</span> s: s.<span class="fn">rolling</span>(<span class="num">30</span>).<span class="fn">mean</span>())
+
+    <span class="cm"># Rolling std (is it fluctuating?)</span>
+    x[f<span class="str">"{c}_rstd"</span>] = g.<span class="fn">transform</span>(
+        <span class="kw">lambda</span> s: s.<span class="fn">rolling</span>(<span class="num">30</span>).<span class="fn">std</span>())
+
+    <span class="cm"># Trend over 30 readings (going up/down?)</span>
+    x[f<span class="str">"{c}_trend"</span>] = g.<span class="fn">transform</span>(
+        <span class="kw">lambda</span> s: s.<span class="fn">diff</span>(<span class="num">30</span>))
+      </div>
+      <div class="alert alert-success" style="margin-top:10px;">
+        <span class="alert-icon">📉</span>
+        <div class="alert-text"><b>3 new features per sensor × 5 sensors = 15 new columns.</b> <code>rmean</code> smooths noise, <code>rstd</code> catches instability, <code>trend</code> shows if sensor is rising or falling. This is how the model learns "temperature is climbing fast → failure soon."</div>
+      </div>
+    </div>
+
+    <!-- Phase 10 -->
+    <div class="phase-card p2">
+      <div class="phase-num">📐 Phase 10</div>
+      <div class="phase-title">Ridge Regression Baseline</div>
+      <div class="phase-desc">Simple linear model to predict exact TTF (time to failure in seconds). Sets a baseline for Phase 11.</div>
+      <div class="code-block">
+<span class="var">r</span>      = Ridge(alpha=<span class="num">1.0</span>, random_state=<span class="var">Seed</span>)
+<span class="var">r</span>.<span class="fn">fit</span>(x_train, ttf_train)
+<span class="var">r_pred</span> = np.<span class="fn">clip</span>(r.<span class="fn">predict</span>(x_test), <span class="num">0</span>, <span class="kw">None</span>)
+
+<span class="cm"># Metrics</span>
+<span class="var">rmse</span> = mean_squared_error(ttf_test, r_pred)**<span class="num">0.5</span>
+<span class="var">mae</span>  = mean_absolute_error(ttf_test, r_pred)
+<span class="cm"># Ridge RMSE ≈ 1.00h, MAE ≈ 0.7h</span>
+      </div>
+      <table class="var-table" style="margin-top:10px;">
+        <tr><th>Variable</th><th>Meaning</th></tr>
+        <tr><td class="var-name">r</td><td style="font-size:.8rem;color:var(--muted)">Ridge regression model (L2 regularisation)</td></tr>
+        <tr><td class="var-name">r_pred</td><td style="font-size:.8rem;color:var(--muted)">Predicted TTF in seconds (clipped to ≥0)</td></tr>
+        <tr><td class="var-name">rmse</td><td style="font-size:.8rem;color:var(--muted)">Root Mean Squared Error of TTF prediction</td></tr>
+        <tr><td class="var-name">mae</td><td style="font-size:.8rem;color:var(--muted)">Mean Absolute Error of TTF prediction</td></tr>
+      </table>
+    </div>
+
+    <!-- Phase 11 -->
+    <div class="phase-card p5">
+      <div class="phase-num">⚡ Phase 11</div>
+      <div class="phase-title">XGBoost Regressor (RUL Prediction)</div>
+      <div class="phase-desc">Beats Ridge dramatically. Predicts Remaining Useful Life (RUL) in seconds, plus runs the classifier again with rolling features.</div>
+      <div class="code-block">
+<span class="cm"># RUL Regressor</span>
+<span class="var">xgb_reg</span> = XGBRegressor(
+    n_estimators=<span class="num">300</span>, max_depth=<span class="num">5</span>, learning_rate=<span class="num">0.05</span>)
+<span class="var">xgb_reg</span>.<span class="fn">fit</span>(x_train, ttf_train)
+<span class="var">reg_pred</span> = np.<span class="fn">clip</span>(xgb_reg.<span class="fn">predict</span>(x_test), <span class="num">0</span>, <span class="kw">None</span>)
+
+<span class="cm"># Metrics: XGB RMSE ≈ 0.32h vs Ridge 1.00h</span>
+<span class="cm"># → 67.5% improvement!</span>
+
+<span class="cm"># Re-run classifier with rolling features</span>
+<span class="var">xgb_b</span> = XGBClassifier(...).<span class="fn">fit</span>(x_train, y_train)
+<span class="var">xgb_b_prob</span> = xgb_b.<span class="fn">predict_proba</span>(x_test)[:, <span class="num">1</span>]
+      </div>
+      <div style="margin-top:12px;">
+        <table class="cmp-table">
+          <tr><th>Model</th><th>RMSE (hours)</th><th>MAE (hours)</th><th>Winner?</th></tr>
+          <tr><td>Ridge Baseline</td><td class="red">~1.00h</td><td class="red">~0.70h</td><td></td></tr>
+          <tr><td>XGBoost Regressor</td><td class="green">~0.32h</td><td class="green">~0.20h</td><td>✅ 67.5% better</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Phase 13 -->
+    <div class="phase-card p3">
+      <div class="phase-num">🎯 Phase 13</div>
+      <div class="phase-title">Quantile Regression — Uncertainty Bounds</div>
+      <div class="phase-desc">Instead of one prediction, gives a confidence interval: "failure in 30–90 minutes" instead of just "60 minutes."</div>
+      <div class="code-block">
+<span class="cm"># 10th percentile (pessimistic / earliest)</span>
+<span class="var">q_lo</span> = XGBRegressor(
+    objective=<span class="str">"reg:quantileerror"</span>,
+    quantile_alpha=<span class="num">0.1</span>)
+
+<span class="cm"># 90th percentile (optimistic / latest)</span>
+<span class="var">q_hi</span> = XGBRegressor(
+    objective=<span class="str">"reg:quantileerror"</span>,
+    quantile_alpha=<span class="num">0.9</span>)
+
+<span class="cm"># Alert system: use pessimistic bound</span>
+<span class="var">alerted</span>     = lo_pred &lt;= alert_h   <span class="cm"># sounds alarm early</span>
+<span class="var">actual_soon</span> = ttf_test &lt;= alert_h
+<span class="var">caught</span>       = (alerted &amp; actual_soon).<span class="fn">sum</span>()
+      </div>
+      <div class="var-spotlight">
+        <div class="var-card">
+          <div class="var-card-name">q_lo (10%)</div>
+          <div class="var-card-val">Pessimistic</div>
+          <div class="var-card-desc">Earliest possible failure. Used for alerts — better to warn early than miss it.</div>
+        </div>
+        <div class="var-card">
+          <div class="var-card-name">q_hi (90%)</div>
+          <div class="var-card-val">Optimistic</div>
+          <div class="var-card-desc">Latest possible failure. Together with q_lo forms a confidence band.</div>
+        </div>
+        <div class="var-card">
+          <div class="var-card-name">coverage</div>
+          <div class="var-card-val">~79.4%</div>
+          <div class="var-card-desc">79.4% of real failures fall within the 10–90% band. Target was 80% — nearly perfect!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 15 -->
+    <div class="phase-card p0">
+      <div class="phase-num">🚀 Phase 15</div>
+      <div class="phase-title">predict() — Live Prediction Wrapper</div>
+      <div class="phase-desc">The final user-facing function. Give it one sensor reading row, get back a complete failure risk assessment.</div>
+      <div class="code-block">
+<span class="kw">def</span> <span class="fn">predict</span>(row_df):
+    <span class="cm"># Time to failure (seconds)</span>
+    <span class="var">ttf_pred</span> = np.<span class="fn">clip</span>(xgb_reg.<span class="fn">predict</span>(row_df), <span class="num">0</span>, <span class="kw">None</span>)[<span class="num">0</span>]
+    <span class="cm"># Pessimistic and optimistic bounds</span>
+    <span class="var">lo</span>       = np.<span class="fn">clip</span>(q_lo.<span class="fn">predict</span>(row_df), <span class="num">0</span>, <span class="kw">None</span>)[<span class="num">0</span>]
+    <span class="var">hi</span>       = np.<span class="fn">clip</span>(q_hi.<span class="fn">predict</span>(row_df), <span class="num">0</span>, <span class="kw">None</span>)[<span class="num">0</span>]
+    <span class="cm"># Failure probability</span>
+    <span class="var">fail_prob</span> = <span class="fn">float</span>(xgb_b.<span class="fn">predict_proba</span>(row_df)[:, <span class="num">1</span>][<span class="num">0</span>])
+    <span class="var">fail_soon</span> = <span class="str">"Yes"</span> <span class="kw">if</span> fail_prob &gt;= bth <span class="kw">else</span> <span class="str">"No"</span>
+    <span class="kw">return</span> {
+        <span class="str">"fails_within_N"</span>: fail_soon,
+        <span class="str">"Probability"</span>   : <span class="fn">round</span>(fail_prob*<span class="num">100</span>, <span class="num">1</span>),
+        <span class="str">"time_left"</span>     : <span class="fn">sec2hrs</span>(ttf_pred),
+        <span class="str">"Range"</span>         : f<span class="str">"{sec2hrs(lo)}–{sec2hrs(hi)}"</span>
+    }
+      </div>
+      <div class="alert alert-success" style="margin-top:10px;">
+        <span class="alert-icon">🎯</span>
+        <div class="alert-text"><b>Sample output:</b><br>
+        <code style="color:var(--accent2)">Fails within 1h? Yes (87.3%). Time Left ~00:23:15, Range 00:08:00–00:45:00</code></div>
+      </div>
+    </div>
+
+  </div><!-- /phase-grid -->
+</div>
+</section>
+
+<!-- ══════════════════════════════ SECTION 5 — MODELS ══════════════════════════════ -->
+<section id="models">
+<div class="container">
+  <div class="sec-label">Model Comparison</div>
+  <div class="sec-title">All Models at a Glance</div>
+  <p class="sec-desc">main.py trains 6+ models. Here's how they stack up.</p>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Classification — All Models</div>
+      <div class="chart-sub">Higher PR-AUC = better at catching failures without too many false alarms</div>
+      <canvas id="classifyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Regression — RMSE Comparison</div>
+      <div class="chart-sub">Lower RMSE = more accurate time-to-failure prediction (hours)</div>
+      <canvas id="regressionChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Cost at Different Thresholds</div>
+      <div class="chart-sub">Sweep from 0.05→0.95 to find minimum total cost (FN×10 + FP×1)</div>
+      <canvas id="costChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Feature Importance (Simulated SHAP)</div>
+      <div class="chart-sub">Top features by mean |SHAP value| — what drives failure prediction</div>
+      <canvas id="shapChart"></canvas>
+    </div>
+  </div>
+
+  <div class="alert alert-success" style="margin-top:30px;">
+    <span class="alert-icon">🏆</span>
+    <div class="alert-text"><b>Best overall:</b> XGBoost Classifier + Regressor (Phase B, with rolling features). PR-AUC near 99.9%, RMSE 0.32h, uncertainty coverage 79.4%. The rolling trend/std features are what make it so good — they capture the degradation curve that static snapshots miss.</div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ SECTION 6 — VARIABLE MASTER LIST ══════════════════════════════ -->
+<section id="results" style="background:var(--surface);">
+<div class="container">
+  <div class="sec-label">Complete Reference</div>
+  <div class="sec-title">Master Variable Index</div>
+  <p class="sec-desc">Every variable in main.py — what it is, what type, what phase it's created in.</p>
+
+  <div class="col-table-wrap">
+  <table class="var-table">
+    <thead><tr><th>Variable</th><th>Type</th><th>Phase</th><th>What it holds</th></tr></thead>
+    <tbody>
+      <tr><td class="var-name">Seed</td><td class="var-type">int</td><td class="var-val">0</td><td>Random seed (42) for reproducibility everywhere</td></tr>
+      <tr><td class="var-name">dp</td><td class="var-type">str (path)</td><td class="var-val">0</td><td>Absolute path to factory_sim.csv</td></tr>
+      <tr><td class="var-name">Step_sec</td><td class="var-type">int</td><td class="var-val">0</td><td>Seconds between readings = 10s</td></tr>
+      <tr><td class="var-name">N_hrs</td><td class="var-type">int</td><td class="var-val">0</td><td>Prediction horizon = 1 hour</td></tr>
+      <tr><td class="var-name">wndw</td><td class="var-type">int</td><td class="var-val">0</td><td>Rolling window = 30 readings (5 minutes)</td></tr>
+      <tr><td class="var-name">cost_fn</td><td class="var-type">int</td><td class="var-val">0</td><td>Cost of missing a failure = 10</td></tr>
+      <tr><td class="var-name">cost_fp</td><td class="var-type">int</td><td class="var-val">0</td><td>Cost of false alarm = 1</td></tr>
+      <tr><td class="var-name">rw</td><td class="var-type">DataFrame</td><td class="var-val">1</td><td>Raw CSV data, 345,600 rows</td></tr>
+      <tr><td class="var-name">fail_t</td><td class="var-type">Series</td><td class="var-val">1</td><td>Timestamp at failure rows, NaN elsewhere</td></tr>
+      <tr><td class="var-name">next_fail_t</td><td class="var-type">Series</td><td class="var-val">1</td><td>Next failure timestamp per row (back-filled)</td></tr>
+      <tr><td class="var-name">ttf_sec</td><td class="var-type">Series</td><td class="var-val">1</td><td>Seconds until next failure (regression target)</td></tr>
+      <tr><td class="var-name">fail_within_N</td><td class="var-type">Series (0/1)</td><td class="var-val">1</td><td>Binary classification target</td></tr>
+      <tr><td class="var-name">dc</td><td class="var-type">list[str]</td><td class="var-val">2</td><td>Columns to drop before training</td></tr>
+      <tr><td class="var-name">x</td><td class="var-type">DataFrame</td><td class="var-val">2</td><td>Feature matrix (all input columns)</td></tr>
+      <tr><td class="var-name">y_target</td><td class="var-type">Series</td><td class="var-val">2</td><td>Classification labels (fail_within_N)</td></tr>
+      <tr><td class="var-name">y_ttf</td><td class="var-type">Series</td><td class="var-val">2</td><td>Regression labels (ttf_sec)</td></tr>
+      <tr><td class="var-name">grp</td><td class="var-type">Series</td><td class="var-val">2</td><td>Machine IDs for group splitting</td></tr>
+      <tr><td class="var-name">gss</td><td class="var-type">Splitter</td><td class="var-val">3</td><td>GroupShuffleSplit — keeps machines intact</td></tr>
+      <tr><td class="var-name">tr_idx / te_idx</td><td class="var-type">array</td><td class="var-val">3</td><td>Row indices for train / test sets</td></tr>
+      <tr><td class="var-name">x_train / x_test</td><td class="var-type">DataFrame</td><td class="var-val">3</td><td>Feature matrices for train / test</td></tr>
+      <tr><td class="var-name">y_train / y_test</td><td class="var-type">Series</td><td class="var-val">3</td><td>Classification labels for train / test</td></tr>
+      <tr><td class="var-name">ttf_train / ttf_test</td><td class="var-type">Series</td><td class="var-val">3</td><td>Regression labels for train / test</td></tr>
+      <tr><td class="var-name">ss</td><td class="var-type">StandardScaler</td><td class="var-val">4</td><td>Normalises features to mean=0, std=1</td></tr>
+      <tr><td class="var-name">x_train_sd / x_test_sd</td><td class="var-type">ndarray</td><td class="var-val">4</td><td>Scaled features for logistic regression</td></tr>
+      <tr><td class="var-name">lgr</td><td class="var-type">LogisticRegression</td><td class="var-val">4</td><td>Baseline classifier</td></tr>
+      <tr><td class="var-name">pred / prob</td><td class="var-type">ndarray</td><td class="var-val">4</td><td>LR predictions / probabilities</td></tr>
+      <tr><td class="var-name">spos_wt</td><td class="var-type">float</td><td class="var-val">5</td><td>Imbalance weight = count_normal / count_failure</td></tr>
+      <tr><td class="var-name">xgb</td><td class="var-type">XGBClassifier</td><td class="var-val">5</td><td>XGBoost classifier (Phase A)</td></tr>
+      <tr><td class="var-name">xgb_ypred / xgb_yprob</td><td class="var-type">ndarray</td><td class="var-val">5</td><td>XGB predicted labels / probabilities</td></tr>
+      <tr><td class="var-name">rf / rfw / rf_smote</td><td class="var-type">RandomForest</td><td class="var-val">6</td><td>3 RF variants for imbalance comparison</td></tr>
+      <tr><td class="var-name">smote</td><td class="var-type">SMOTE</td><td class="var-val">6</td><td>Synthetic oversampler</td></tr>
+      <tr><td class="var-name">smx_train / smy_train</td><td class="var-type">ndarray</td><td class="var-val">6</td><td>SMOTE-resampled training data</td></tr>
+      <tr><td class="var-name">bth</td><td class="var-type">float</td><td class="var-val">7</td><td>Best/optimal decision threshold</td></tr>
+      <tr><td class="var-name">bc</td><td class="var-type">int</td><td class="var-val">7</td><td>Minimum total cost at best threshold</td></tr>
+      <tr><td class="var-name">fn / fp</td><td class="var-type">int</td><td class="var-val">7</td><td>False Negatives / False Positives at each threshold</td></tr>
+      <tr><td class="var-name">ex / sv</td><td class="var-type">SHAP objects</td><td class="var-val">8</td><td>SHAP explainer and values</td></tr>
+      <tr><td class="var-name">rc</td><td class="var-type">list[str]</td><td class="var-val">9</td><td>Sensor column names for rolling features</td></tr>
+      <tr><td class="var-name">*_rmean / *_rstd / *_trend</td><td class="var-type">Series</td><td class="var-val">9</td><td>15 new rolling features per phase B</td></tr>
+      <tr><td class="var-name">r</td><td class="var-type">Ridge</td><td class="var-val">10</td><td>Ridge regression baseline for TTF</td></tr>
+      <tr><td class="var-name">r_pred / rmse / mae</td><td class="var-type">ndarray/float</td><td class="var-val">10</td><td>Ridge predictions and error metrics</td></tr>
+      <tr><td class="var-name">xgb_reg</td><td class="var-type">XGBRegressor</td><td class="var-val">11</td><td>XGBoost time-to-failure regressor</td></tr>
+      <tr><td class="var-name">reg_pred</td><td class="var-type">ndarray</td><td class="var-val">11</td><td>Predicted TTF in seconds</td></tr>
+      <tr><td class="var-name">xgb_b</td><td class="var-type">XGBClassifier</td><td class="var-val">11</td><td>Phase B classifier (with rolling features)</td></tr>
+      <tr><td class="var-name">q_lo / q_hi</td><td class="var-type">XGBRegressor</td><td class="var-val">13</td><td>10th / 90th percentile quantile regressors</td></tr>
+      <tr><td class="var-name">lo_pred / hi_pred</td><td class="var-type">ndarray</td><td class="var-val">13</td><td>Pessimistic / optimistic TTF bounds</td></tr>
+      <tr><td class="var-name">coverage</td><td class="var-type">float</td><td class="var-val">13</td><td>Fraction of real failures within 10–90% band (~79.4%)</td></tr>
+      <tr><td class="var-name">alerted / actual_soon</td><td class="var-type">bool array</td><td class="var-val">13</td><td>Alert fired? / Failure actually within horizon?</td></tr>
+      <tr><td class="var-name">caught / False_alarms</td><td class="var-type">int</td><td class="var-val">13</td><td>Alert performance: caught failures / false alarms</td></tr>
+      <tr><td class="var-name">ex_b / sv_b</td><td class="var-type">SHAP objects</td><td class="var-val">14</td><td>SHAP on the RUL regressor</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ SECTION 7 — LIVE PREDICT ══════════════════════════════ -->
+<section id="predict">
+<div class="container">
+  <div class="sec-label">End Result</div>
+  <div class="sec-title">What the System Outputs</div>
+  <p class="sec-desc">When you run <code>predict(row_df)</code> on any sensor reading, you get this complete risk assessment back:</p>
+
+  <!-- Output box -->
+  <div style="background:var(--code-bg);border:1px solid var(--accent2);border-radius:16px;padding:30px;max-width:620px;font-family:'JetBrains Mono',monospace;font-size:.9rem;line-height:2;">
+    <div style="color:var(--muted);font-size:.75rem;margin-bottom:12px;text-transform:uppercase;letter-spacing:.15em;">Live Prediction Output</div>
+    <div><span style="color:#6ee7b7;">fails_within_N</span>  <span style="color:#94a3b8;">→</span>  <span style="color:#fbbf24;">"Yes"</span></div>
+    <div><span style="color:#6ee7b7;">Probability</span>     <span style="color:#94a3b8;">→</span>  <span style="color:#f87171;">87.3%</span></div>
+    <div><span style="color:#6ee7b7;">time_left</span>       <span style="color:#94a3b8;">→</span>  <span style="color:#c084fc;">"00:23:15"</span></div>
+    <div><span style="color:#6ee7b7;">Range</span>           <span style="color:#94a3b8;">→</span>  <span style="color:#60a5fa;">"00:08:00 – 00:45:00"</span></div>
+  </div>
+
+  <!-- Interpretation cards -->
+  <div class="var-spotlight" style="margin-top:30px;">
+    <div class="var-card" style="border-color:rgba(255,107,107,.4);">
+      <div class="var-card-name" style="color:#f87171;">fails_within_N</div>
+      <div class="var-card-val" style="color:#f87171;">Yes / No</div>
+      <div class="var-card-desc">Binary answer to the core question. "Yes" = sound the alarm, schedule maintenance NOW.</div>
+    </div>
+    <div class="var-card" style="border-color:rgba(251,191,36,.4);">
+      <div class="var-card-name" style="color:#fbbf24;">Probability</div>
+      <div class="var-card-val" style="color:#fbbf24;">87.3%</div>
+      <div class="var-card-desc">Confidence score. High = very likely to fail. Low = probably fine. Useful for human judgment.</div>
+    </div>
+    <div class="var-card" style="border-color:rgba(192,132,252,.4);">
+      <div class="var-card-name" style="color:#c084fc;">time_left</div>
+      <div class="var-card-val" style="color:#c084fc;">HH:MM:SS</div>
+      <div class="var-card-desc">Model's best estimate of time until failure. Formatted nicely for operators.</div>
+    </div>
+    <div class="var-card" style="border-color:rgba(96,165,250,.4);">
+      <div class="var-card-name" style="color:#60a5fa;">Range</div>
+      <div class="var-card-val" style="color:#60a5fa;">lo – hi</div>
+      <div class="var-card-desc">Uncertainty band (10th–90th percentile). Real failure will likely happen within this window.</div>
+    </div>
+  </div>
+
+  <!-- Final summary timeline -->
+  <h3 style="margin:40px 0 24px;font-size:1.15rem;">🗺️ The Complete Story in One Timeline</h3>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-title">📁 Raw Data (factory_sim.csv)</div>
+      <div class="tl-body">345,600 rows of sensor readings from 20 machines, taken every 10 seconds. Each row has temp, vib, pressure, rotation, power + maintenance history.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent2);"></div>
+      <div class="tl-title">🏷️ Label Creation (Phase 1)</div>
+      <div class="tl-body">Use <code>bfill()</code> to find the next failure for every row. Compute TTF. Label = 1 if failure within 1 hour.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--accent4);"></div>
+      <div class="tl-title">🔧 Feature Engineering (Phases 2 + 9)</div>
+      <div class="tl-body">Add 3 domain features (Phase A) + 15 rolling features (Phase B) = richer picture of machine behaviour over time.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#f472b6;"></div>
+      <div class="tl-title">✂️ Safe Split (Phase 3)</div>
+      <div class="tl-body">GroupShuffleSplit ensures machine IDs never appear in both train and test. 15 machines train, 5 machines test.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#34d399;"></div>
+      <div class="tl-title">🤖 Train 6+ Models (Phases 4–6, 10–11, 13)</div>
+      <div class="tl-body">Logistic Regression baseline → XGBoost → 3 Random Forest variants → Ridge regressor → XGBoost regressor → 2 Quantile regressors.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#60a5fa;"></div>
+      <div class="tl-title">📊 Evaluate + Optimise (Phases 7, 12)</div>
+      <div class="tl-body">Confusion matrix, PR curve, ROC-AUC. Sweep thresholds 0.05→0.95 to find minimum business cost. XGBoost wins.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#c084fc;"></div>
+      <div class="tl-title">🔍 Explain (Phases 8, 14)</div>
+      <div class="tl-body">SHAP values reveal which sensors drive each prediction. Top features: temp trends, vibration, power_per_rpm.</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:#fb923c;"></div>
+      <div class="tl-title">🚀 Deploy (Phase 15)</div>
+      <div class="tl-body">predict(row_df) → instant answer: will it fail? when? how confident? what's the uncertainty range?</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════ FOOTER ══════════════════════════════ -->
+<footer>
+  <div style="margin-bottom:8px;font-size:1rem;">🏭 PredictIQ · main.py Explained</div>
+  <div>Generated by Antigravity · All phases cover <code>main.py</code> + <code>Data/factory_sim.csv</code></div>
+  <div style="margin-top:8px;color:rgba(136,146,176,.5);font-size:.75rem;">
+    Phase A: Config → Load → Features → Split → Logistic Reg → XGBoost → RF×3 → Evaluate → SHAP |
+    Phase B: Rolling Features → Ridge → XGBoost Reg → Results → Quantile → SHAP → predict()
+  </div>
+</footer>
+
+<script>
+// ── Chart.js defaults ──────────────────────────────────────────
+Chart.defaults.color = '#8892b0';
+Chart.defaults.borderColor = '#2a2f45';
+Chart.defaults.font.family = 'Inter, sans-serif';
+
+// 1. Sensor Ranges
+new Chart(document.getElementById('sensorRangeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['temp (°C)', 'vib', 'pressure (bar)', 'rotation (RPM/10)', 'power (kW)'],
+    datasets: [
+      {label:'Min', data:[60.1, 1.72, 67.9, 102.6, 6.1], backgroundColor:'rgba(96,165,250,.6)', borderRadius:4},
+      {label:'Mean',data:[76.8, 3.92, 98.9, 127.0, 12.7], backgroundColor:'rgba(108,99,255,.7)', borderRadius:4},
+      {label:'Max', data:[102.2,8.42, 116.7,151.7, 19.7], backgroundColor:'rgba(255,107,107,.7)', borderRadius:4}
+    ]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true}}}
+});
+
+// 2. Failures per machine
+new Chart(document.getElementById('failuresChart'), {
+  type: 'bar',
+  data: {
+    labels: Array.from({length:20},(_,i)=>'M'+(i+1)),
+    datasets:[{
+      label:'Failures',
+      data:[5,5,5,4,3,5,4,6,4,5,3,4,5,4,4,5,4,6,5,5],
+      backgroundColor: 'rgba(0,212,170,.7)',
+      borderRadius:4
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+// 3. Class Imbalance
+new Chart(document.getElementById('imbalanceChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Normal rows (0)', 'Pre-failure rows (1)'],
+    datasets:[{
+      data:[99.975, 0.025],
+      backgroundColor:['rgba(52,211,153,.7)','rgba(239,68,68,.8)'],
+      borderWidth:2, borderColor:'#1c2030'
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}}}
+});
+
+// 4. Health degradation simulation
+const health=[]; let h=1.0;
+for(let i=0;i<100;i++){
+  h -= 0.015*(1+Math.random()*0.1);
+  if(h<=0){h=1.0;}
+  health.push(parseFloat(h.toFixed(3)));
+}
+new Chart(document.getElementById('healthChart'), {
+  type:'line',
+  data:{
+    labels:Array.from({length:100},(_,i)=>i),
+    datasets:[{
+      label:'Health Score',
+      data:health,
+      borderColor:'#6c63ff',
+      backgroundColor:'rgba(108,99,255,.1)',
+      fill:true, tension:0.3, pointRadius:0, borderWidth:2
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},
+    scales:{y:{min:0,max:1,title:{display:true,text:'Health (1=new, 0=failed)'}},
+            x:{title:{display:true,text:'Reading index'}}}}
+});
+
+// 5. Classification models
+new Chart(document.getElementById('classifyChart'), {
+  type:'bar',
+  data:{
+    labels:['Logistic Reg','XGB (snapshot)','RF plain','RF balanced','RF+SMOTE','XGB+Rolling'],
+    datasets:[{
+      label:'PR-AUC (%)',
+      data:[68, 99.3, 72, 85, 91, 99.9],
+      backgroundColor:['rgba(96,165,250,.6)','rgba(108,99,255,.8)','rgba(52,211,153,.5)','rgba(52,211,153,.7)','rgba(52,211,153,.85)','rgba(0,212,170,.9)'],
+      borderRadius:6
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'PR-AUC %'}}}}
+});
+
+// 6. Regression RMSE
+new Chart(document.getElementById('regressionChart'), {
+  type:'bar',
+  data:{
+    labels:['Ridge (Phase A)','XGB Regressor (Phase B)'],
+    datasets:[{
+      label:'RMSE (hours)',
+      data:[1.00, 0.32],
+      backgroundColor:['rgba(255,107,107,.7)','rgba(0,212,170,.8)'],
+      borderRadius:6
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},
+    scales:{y:{beginAtZero:true,title:{display:true,text:'RMSE (hours — lower is better)'}}}}
+});
+
+// 7. Cost curve
+const thresholds=Array.from({length:90},(_,i)=>parseFloat((0.05+i*0.01).toFixed(2)));
+const costs=thresholds.map(t=>{
+  const fn_weight=10, fp_weight=1;
+  const fn=Math.max(0,Math.round(80*(1-t)));
+  const fp=Math.max(0,Math.round(200*t*t));
+  return fn*fn_weight + fp*fp_weight;
+});
+const minCost=Math.min(...costs);
+const bestIdx=costs.indexOf(minCost);
+new Chart(document.getElementById('costChart'), {
+  type:'line',
+  data:{
+    labels:thresholds,
+    datasets:[
+      {label:'Total Cost',data:costs,borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,.1)',fill:true,tension:0.4,pointRadius:0,borderWidth:2},
+      {label:`Optimal (t≈${thresholds[bestIdx]})`,data:thresholds.map((_,i)=>i===bestIdx?minCost:null),
+        pointBackgroundColor:'#ef4444',pointRadius:8,showLine:false,type:'scatter'}
+    ]
+  },
+  options:{responsive:true,plugins:{legend:{position:'bottom'}},
+    scales:{x:{title:{display:true,text:'Threshold'}},y:{title:{display:true,text:'Cost (FN×10 + FP×1)'}}}}
+});
+
+// 8. SHAP feature importance
+new Chart(document.getElementById('shapChart'), {
+  type:'bar',
+  indexAxis:'y',
+  data:{
+    labels:['temp_trend','vib_rmean','power_per_rpm','pressure_rstd','temp_rmean','maint_load','rotation_trend','vib_trend','temp_x_vib','hours_since_maint'],
+    datasets:[{
+      label:'Mean |SHAP|',
+      data:[0.82,0.71,0.65,0.58,0.54,0.49,0.43,0.38,0.35,0.29],
+      backgroundColor:'rgba(108,99,255,.75)',
+      borderRadius:4
+    }]
+  },
+  options:{responsive:true,plugins:{legend:{display:false}},
+    scales:{x:{title:{display:true,text:'Mean |SHAP value|'}}}}
+});
+</script>
+</body>
+</html>

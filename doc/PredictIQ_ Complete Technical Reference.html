@@ -1,0 +1,487 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<h1>PredictIQ: Complete Technical Reference (v2)</h1>
+<p>Predictive maintenance from sensor data | Author: Shreyansh Dwivedi | single file <code>main.py</code>, top-to-bottom</p>
+<p><strong>Goal:</strong> given a machine's sensor reading, output (1) fails within N hours? Yes/No, (2) failure probability %, (3) time left as hh:mm:ss, (4) an 80% time range.</p>
+<p><strong>New in v2:</strong> two output modes chosen at start, <strong>Operator</strong> (clean machine prediction) and <strong>Analyst</strong> (full technical report and all graphs), so non-technical users are no longer buried in technical output.</p>
+<hr>
+<h2>1. Output Modes</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Operator (mode 1)</th>
+<th>Analyst (mode 2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Audience</td>
+<td>Plant / maintenance user</td>
+<td>Data scientist / data analyst</td>
+</tr>
+<tr>
+<td>Question answered</td>
+<td>Will this machine fail, and when?</td>
+<td>Is the model good, and why?</td>
+</tr>
+<tr>
+<td>Machine predictions (Yes/No, %, time left, range)</td>
+<td>Shown</td>
+<td>Shown</td>
+</tr>
+<tr>
+<td>Data checks, shapes, missing values</td>
+<td>Hidden</td>
+<td>Shown</td>
+</tr>
+<tr>
+<td>Model reports and scores (Logistic, XGBoost, RF x3)</td>
+<td>Hidden</td>
+<td>Shown</td>
+</tr>
+<tr>
+<td>Cost-optimal threshold and cost comparison</td>
+<td>Hidden</td>
+<td>Shown</td>
+</tr>
+<tr>
+<td>Ridge vs XGBoost table, coverage, alerts, takeaways</td>
+<td>Hidden</td>
+<td>Shown</td>
+</tr>
+<tr>
+<td>All 6 graphs</td>
+<td>Hidden (closed silently)</td>
+<td>Shown</td>
+</tr>
+<tr>
+<td>Models trained</td>
+<td>All (same run)</td>
+<td>All (same run)</td>
+</tr>
+</tbody>
+</table>
+<h3>How it works (Config block)</h3>
+<pre><code class="language-python">Analyst=(mode==&#34;2&#34;)
+Show_plot=Analyst
+def log(*a,**k):
+    if Analyst: print(*a,**k)
+def show():
+    mp.show() if Show_plot else mp.close()
+</code></pre>
+<ul>
+<li><strong><code>mode</code></strong>: the user's menu choice, &quot;1&quot; or &quot;2&quot;. The input loop rejects anything else and asks again.</li>
+<li><strong><code>Analyst</code></strong>: True/False flag, True only for mode 2.</li>
+<li><strong><code>log()</code></strong>: behaves like <code>print()</code> but prints only in Analyst mode. Used for all technical output (Phases 0 to 14 and the takeaways).</li>
+<li><strong><code>show()</code></strong>: shows the plot in Analyst mode, closes it silently in Operator mode. It replaces <code>mp.show()</code> at the 6 plot points. The <code>mp.show()</code> inside <code>show()</code> itself stays, otherwise the function would call itself forever.</li>
+<li><strong><code>print()</code> kept (visible in both modes):</strong> the first line &quot;Model Started&quot;, the mode menu, the invalid-choice message, the Phase 15 prediction output, and &quot;Model Stopped&quot;. The decoration line <code>------&gt;&lt;-------</code> also uses <code>print</code>, so it shows in both modes.</li>
+</ul>
+<h3>Menu (printed before the run)</h3>
+<p>A banner &quot;PredictIQ - SELECT OUTPUT MODE&quot;, then two blocks describing who each mode is for, what it shows and hides, then <code>Enter 1 (Operator) or 2 (Analyst):</code>. Borders use plain <code>=</code> and <code>-</code> characters (60 wide) so Windows terminals display them correctly.</p>
+<h3>Order of inputs</h3>
+<ol>
+<li><code>N_hrs</code> (prediction horizon in hours), 2. mode (1 or 2).</li>
+</ol>
+<h3>Current Phase 15 output (both modes)</h3>
+<p>Three random test rows, each printed as three lines: <code>Fails within Nh? Yes/No(prob%).</code>, <code>Time Left ~hh:mm:ss,</code>, <code>Range low-high.</code></p>
+<h3>Planned next step</h3>
+<p>Operator mode should ask for a <strong>Machine ID</strong> (from the test machines only) and show that machine's latest reading, instead of 3 random rows. Analyst mode keeps the 3-row sample.</p>
+<hr>
+<h2>2. Libraries</h2>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>os</code></td>
+<td>Build data path from the script's location</td>
+</tr>
+<tr>
+<td><code>pandas</code>, <code>numpy</code></td>
+<td>Data handling, arrays, clipping, threshold sweep</td>
+</tr>
+<tr>
+<td><code>sklearn.model_selection.GroupShuffleSplit</code></td>
+<td>Split by machine</td>
+</tr>
+<tr>
+<td><code>sklearn.linear_model</code></td>
+<td><code>LogisticRegression</code>, <code>Ridge</code></td>
+</tr>
+<tr>
+<td><code>sklearn.ensemble.RandomForestClassifier</code></td>
+<td>Imbalance study</td>
+</tr>
+<tr>
+<td><code>sklearn.preprocessing.StandardScaler</code></td>
+<td>Scale for Logistic Regression</td>
+</tr>
+<tr>
+<td><code>sklearn.metrics</code></td>
+<td>classification_report, roc_auc_score, average_precision_score, confusion_matrix, ConfusionMatrixDisplay, precision_recall_curve, mean_squared_error, mean_absolute_error</td>
+</tr>
+<tr>
+<td><code>xgboost</code></td>
+<td><code>XGBClassifier</code>, <code>XGBRegressor</code></td>
+</tr>
+<tr>
+<td><code>imblearn.over_sampling.SMOTE</code></td>
+<td>Synthetic minority oversampling</td>
+</tr>
+<tr>
+<td><code>matplotlib.pyplot</code> (as <code>mp</code>)</td>
+<td>All plots</td>
+</tr>
+<tr>
+<td><code>shap</code></td>
+<td>Explainability</td>
+</tr>
+</tbody>
+</table>
+<p>Imported but unused: <code>train_test_split</code>, <code>roc_curve</code>, <code>seaborn</code>.</p>
+<h2>3. Config (Phase 0)</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Seed</code></td>
+<td>42</td>
+<td>Random seed</td>
+</tr>
+<tr>
+<td><code>dp</code></td>
+<td><code>&lt;script folder&gt;/Data/factory_sim_hard.csv</code></td>
+<td>Data path</td>
+</tr>
+<tr>
+<td><code>Step_sec</code></td>
+<td>10</td>
+<td>Sampling interval in seconds (unused)</td>
+</tr>
+<tr>
+<td><code>N_hrs</code></td>
+<td><code>int(input(...))</code></td>
+<td>Horizon typed by the user</td>
+</tr>
+<tr>
+<td><code>wndw</code></td>
+<td>30</td>
+<td>Rolling window in readings (30 x 10 s = 5 min)</td>
+</tr>
+<tr>
+<td><code>cost_fn</code> / <code>cost_fp</code></td>
+<td>10 / 1</td>
+<td>Missed failure vs false alarm cost</td>
+</tr>
+<tr>
+<td><code>mode</code>, <code>Analyst</code>, <code>Show_plot</code></td>
+<td>see Section 1</td>
+<td>Output mode controls</td>
+</tr>
+</tbody>
+</table>
+<p>Analyst mode prints: file found, horizon, window, cost ratio.</p>
+<h2>4. Master Flow</h2>
+<pre class="mermaid">flowchart TD
+    P0[&#34;Phase 0: Input N, choose mode 1 or 2&#34;] --&gt; P1[&#34;Phase 1: Load, sort, drop _health_hidden&#34;]
+    P1 --&gt; L1[&#34;ttf_sec from next failure, drop censored&#34;]
+    L1 --&gt; L2[&#34;fail_within_N label&#34;]
+    L2 --&gt; P15[&#34;Phase 1.5: ffill then bfill per machine&#34;]
+    P15 --&gt; P2[&#34;Phase 2: 3 derived features, 3 targets&#34;]
+    P2 --&gt; P3[&#34;Phase 3: GroupShuffleSplit 75/25 by machine&#34;]
+    P3 --&gt; P4[&#34;Phase 4: Logistic Regression&#34;]
+    P4 --&gt; P5[&#34;Phase 5: XGBoost classifier&#34;]
+    P5 --&gt; P6[&#34;Phase 6: RF none / balanced / SMOTE&#34;]
+    P6 --&gt; P7[&#34;Phase 7: Confusion matrix, PR curve, cost threshold bth&#34;]
+    P7 --&gt; P8[&#34;Phase 8: SHAP classifier, 2 plots&#34;]
+    P8 --&gt; P9[&#34;Phase 9: 15 rolling features&#34;]
+    P9 --&gt; P10[&#34;Phase 10: Ridge&#34;]
+    P10 --&gt; P11[&#34;Phase 11: XGB regressor and XGB classifier B&#34;]
+    P11 --&gt; P12[&#34;Phase 12: Results table&#34;]
+    P12 --&gt; P13[&#34;Phase 13: Quantile 10 and 90, coverage, alerts&#34;]
+    P13 --&gt; P14[&#34;Phase 14: SHAP regressor, 2 plots&#34;]
+    P14 --&gt; P15b[&#34;Phase 15: predict, prediction output&#34;]
+    P15b --&gt; M{&#34;Mode?&#34;}
+    M -- &#34;Operator&#34; --&gt; OP[&#34;Predictions only&#34;]
+    M -- &#34;Analyst&#34; --&gt; AN[&#34;Predictions + takeaways summary&#34;]
+</pre>
+<p>Technical phases (1 to 14) always run. Mode only controls what is displayed.</p>
+<hr>
+<h2>5. Phase 1: Data and Labels</h2>
+<ol>
+<li><code>pd.read_csv</code>, sort by <code>machineID</code>, <code>t_sec</code>, <code>reset_index(drop=True)</code>. Variable <code>rw</code>.</li>
+<li>Drop <code>_health_hidden</code> (hidden ground truth, would leak the answer).</li>
+<li>Logs: shape, columns, machine count, unique time steps, total missing values.</li>
+<li><strong>Time to failure:</strong> <code>fail_t = t_sec.where(fail_event)</code>, then <code>groupby(machineID).bfill()</code> gives <code>next_fail_t</code>. <code>ttf_sec = next_fail_t - t_sec</code>.</li>
+<li><strong>Censored rows</strong> (<code>ttf_sec</code> NaN, after a machine's last failure) are dropped. Logs rows dropped and kept.</li>
+<li><strong>Label:</strong> <code>fail_within_N = (ttf_sec &lt;= N_hrs*3600).astype(int)</code>. Logs the positive rate and TTF stats (hours).</li>
+</ol>
+<h2>6. Phase 1.5: Cleaning</h2>
+<ul>
+<li><code>sensor_cols = temp, vib, pressure, rotation, power</code>. Logs missing count before and after.</li>
+<li><code>groupby(machineID).transform(ffill().bfill())</code>: last known value forward, then leading gaps backward. Per machine, so nothing leaks across machines.</li>
+</ul>
+<h2>7. Phase 2: Features and Targets</h2>
+<ul>
+<li>Dropped (<code>dc</code>): <code>machineID</code>, <code>t_sec</code>, <code>fail_event</code>, <code>next_fail_t</code>, <code>ttf_sec</code>, <code>fail_within_N</code>. <code>x</code> = sensors + <code>hours_since_maint</code> (+ any other remaining CSV columns).</li>
+<li>Derived: <code>power_per_rpm = power/rotation</code>, <code>temp_x_vib = temp*vib</code>, <code>maint_load = hours_since_maint*power</code>.</li>
+<li>Targets: <code>y_target</code> (0/1), <code>y_ttf</code> (seconds), <code>grp</code> (machine ID).</li>
+</ul>
+<h2>8. Phase 3: Split</h2>
+<p><code>GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=Seed)</code> grouped by machine. Logs shapes, machine IDs per set, <strong>machine overlap (empty set)</strong>, positive rates, mean TTF. Reason: one machine's consecutive readings are near-identical, so a row split would leak.</p>
+<hr>
+<h2>9. Phase A: Classification</h2>
+<p><strong>Phase 4, Logistic Regression (baseline).</strong> <code>StandardScaler</code> fit on train only. <code>LogisticRegression(class_weight=&quot;balanced&quot;, max_iter=1000, random_state=Seed)</code>, default L2, C=1. Logs classification report (Normal/Failure), ROC-AUC, PR-AUC, chance-level PR-AUC (= test positive rate).</p>
+<p><strong>Phase 5, XGBoost Classifier.</strong> <code>spos_wt = negatives/positives</code>. <code>XGBClassifier(n_estimators=300, max_depth=4, learning_rate=0.05, scale_pos_weight=spos_wt, eval_metric=&quot;aucpr&quot;, random_state=42)</code> on unscaled data. Logs report, ROC-AUC, PR-AUC (print labels say &quot;Accuracy&quot; and &quot;Precision&quot; but show ROC-AUC and PR-AUC), and Logistic PR-AUC for comparison.</p>
+<p><strong>Phase 6, Imbalance study.</strong> All use <code>RandomForestClassifier(n_estimators=100, random_state=Seed, n_jobs=-1)</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plain</td>
+<td>No handling</td>
+</tr>
+<tr>
+<td>Balanced</td>
+<td><code>class_weight=&quot;balanced&quot;</code></td>
+</tr>
+<tr>
+<td>SMOTE</td>
+<td><code>SMOTE(random_state=Seed)</code> on train only, default <code>k_neighbors=5</code>, minority raised to 1:1</td>
+</tr>
+</tbody>
+</table>
+<p>Logs class counts before and after SMOTE, then a report and PR-AUC x 100 per variant.</p>
+<p><strong>Phase 7, Evaluation.</strong></p>
+<ul>
+<li>Plot 1: confusion matrix, XGBoost, threshold 0.5, <code>cmap=&quot;Blues&quot;</code>.</li>
+<li>Plot 2: Precision-Recall curve (orange).</li>
+<li>Cost sweep: <code>np.arange(0.05, 0.95, 0.01)</code>, <code>cost = FN*10 + FP*1</code>, best threshold saved as <code>bth</code> (starts at 0.5). Logs <code>bth</code>, its cost and the 0.5 cost. Tuned on test data, slightly optimistic.</li>
+</ul>
+<p><strong>Phase 8, SHAP (classifier).</strong> <code>TreeExplainer(xgb)</code>. Plot 3: bar of mean |SHAP|. Plot 4: beeswarm summary.</p>
+<hr>
+<h2>10. Phase B: Time Left, Range and Alerts</h2>
+<p><strong>Phase 9, Rolling features</strong> (per machine, per sensor, window 30, 15 new columns):</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Formula</th>
+<th>NaN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{c}_rmean</code></td>
+<td>rolling mean, <code>min_periods=1</code></td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>{c}_rstd</code></td>
+<td>rolling std, <code>min_periods=1</code></td>
+<td><code>fillna(0)</code></td>
+</tr>
+<tr>
+<td><code>{c}_trend</code></td>
+<td><code>diff(30)</code></td>
+<td><code>fillna(0)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Backward-looking only. Train and test re-sliced with <code>tr_idx</code>/<code>te_idx</code>.</p>
+<p><strong>Phase 10, Ridge.</strong> <code>Ridge(alpha=1.0, random_state=Seed)</code> on unscaled features, predictions clipped at 0. RMSE and MAE in hours, plus test TTF mean and std.</p>
+<p><strong>Phase 11, XGBoost.</strong> <code>xgb_reg = XGBRegressor(n_estimators=300, max_depth=5, learning_rate=0.05, random_state=Seed)</code>, clipped at 0, RMSE and MAE vs Ridge. <code>xgb_b</code> = same settings as Phase 5 with the rolling features. Logs PR-AUC for Phase B vs Phase A.</p>
+<p><strong>Phase 12, Results table.</strong> Ridge vs XGBoost RMSE and MAE (hours), holdout machine IDs, and <code>(1 - rmse_b/rmse)*100</code> % lower RMSE.</p>
+<p><strong>Phase 13, Uncertainty and alerts.</strong> <code>q_lo</code> and <code>q_hi</code>: <code>XGBRegressor(n_estimators=300, max_depth=5, learning_rate=0.05, objective=&quot;reg:quantileerror&quot;, quantile_alpha=0.1 / 0.9, random_state=Seed)</code>, clipped at 0. Coverage = share of true TTF inside [lo, hi] (target about 80%). Alert: <code>lo_pred &lt;= N_hrs*3600</code>. Logs caught / total and false alarms.</p>
+<p><strong>Phase 14, SHAP (regressor).</strong> <code>TreeExplainer(xgb_reg)</code>. Plot 5: bar. Plot 6: beeswarm.</p>
+<p><strong>Phase 15, <code>predict()</code>.</strong></p>
+<pre class="mermaid">flowchart LR
+    ROW[&#34;One feature row&#34;] --&gt; A[&#34;xgb_reg: time left&#34;]
+    ROW --&gt; B[&#34;q_lo and q_hi: range&#34;]
+    ROW --&gt; C[&#34;xgb_b: probability&#34;]
+    C --&gt; D{&#34;prob at least bth?&#34;}
+    D -- &#34;Yes&#34; --&gt; Y[&#34;Yes&#34;]
+    D -- &#34;No&#34; --&gt; Nn[&#34;No&#34;]
+    A --&gt; F[&#34;sec2hrs: hh:mm:ss&#34;]
+    B --&gt; F
+    Y --&gt; O[&#34;Result dict&#34;]
+    Nn --&gt; O
+    F --&gt; O
+</pre>
+<p><code>sec2hrs(s)</code> clamps at 0 and returns <code>HH:MM:SS</code>. <code>predict(row_df)</code> returns <code>fails_within_N</code>, <code>Probability</code> (%), <code>time_left</code>, <code>Range</code>. Demo: <code>x_test.sample(3, random_state=Seed)</code>. Analyst mode then logs the takeaways (RMSE vs Ridge, PR-AUC snapshot vs rolling, coverage, alerts). Ends with <code>print(&quot;Model Stopped&quot;)</code> and <code>raise SystemExit</code>.</p>
+<hr>
+<h2>11. Models at a Glance</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Model</th>
+<th>Key settings</th>
+<th>Task</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Logistic Regression</td>
+<td>balanced, max_iter 1000, scaled</td>
+<td>Classify baseline</td>
+</tr>
+<tr>
+<td>2</td>
+<td>XGB Classifier A</td>
+<td>300, depth 4, lr .05, scale_pos_weight, aucpr, seed 42</td>
+<td>Classify main</td>
+</tr>
+<tr>
+<td>3-5</td>
+<td>Random Forest x3</td>
+<td>100 trees, n_jobs -1: plain / balanced / SMOTE</td>
+<td>Imbalance study</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Ridge</td>
+<td>alpha 1.0</td>
+<td>TTF baseline</td>
+</tr>
+<tr>
+<td>7</td>
+<td>XGB Regressor</td>
+<td>300, depth 5, lr .05</td>
+<td>TTF main</td>
+</tr>
+<tr>
+<td>8</td>
+<td>XGB Classifier B</td>
+<td>as 2, rolling features</td>
+<td>Probability in <code>predict()</code></td>
+</tr>
+<tr>
+<td>9-10</td>
+<td>XGB Quantile 0.1 / 0.9</td>
+<td>300, depth 5, lr .05</td>
+<td>Range</td>
+</tr>
+</tbody>
+</table>
+<h2>12. Seed (<code>Seed = 42</code>)</h2>
+<p>Used in GroupShuffleSplit, Logistic Regression, all 3 Random Forests, SMOTE, Ridge, XGB Regressor, XGB Classifier B, both quantile models and the demo <code>sample()</code>. XGB Classifier A hardcodes 42.</p>
+<h2>13. The 6 Plots (Analyst mode only)</h2>
+<ol>
+<li>Confusion matrix, XGBoost, threshold 0.5</li>
+<li>Precision-Recall curve, XGBoost</li>
+<li>SHAP global importance bar, classifier</li>
+<li>SHAP beeswarm, classifier</li>
+<li>SHAP global importance bar, RUL regressor</li>
+<li>SHAP beeswarm, RUL regressor</li>
+</ol>
+<h2>14. Metrics</h2>
+<p>ROC-AUC, PR-AUC (<code>average_precision_score</code>), classification report, confusion matrix, total cost (FN x 10 + FP x 1), RMSE, MAE (hours), interval coverage, alerts caught / false alarms. PR-AUC is the main metric because failures are rare.</p>
+<h2>15. Limitations and Code Notes</h2>
+<ul>
+<li>Simulated data (proof of concept).</li>
+<li><code>bth</code> is tuned on the test set and comes from Classifier A but is used with Classifier B.</li>
+<li>Print labels &quot;Accuracy&quot;/&quot;Precision&quot; in Phases 5 and 6 actually show ROC-AUC and PR-AUC.</li>
+<li><code>dc</code> is reused as a name in Phase 7; <code>Step_sec</code>, <code>train_test_split</code>, <code>roc_curve</code>, <code>seaborn</code> are unused.</li>
+<li>Ridge runs on unscaled features; its <code>random_state</code> is inactive.</li>
+<li>Operator mode still trains every model (RF, SMOTE, SHAP), so it waits as long as Analyst mode. Skipping those in Operator mode is a possible speed-up.</li>
+<li>The Operator currently sees 3 random test rows, not a chosen machine (see planned next step).</li>
+</ul>
+<h2>16. Run</h2>
+<p>Put <code>factory_sim_hard.csv</code> in <code>Data/</code>, install the libraries, run <code>python main.py</code>, enter N in hours, then choose mode 1 or 2.</p>
+
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+</body></html>
